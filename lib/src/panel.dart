@@ -221,22 +221,33 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
   @override
   void initState() {
     super.initState();
-
+    var actualPanelState = widget.defaultPanelState;
     _ac = new AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 300),
         value: widget.defaultPanelState == PanelState.CLOSED
             ? 0.0
             : 1.0 //set the default panel state (i.e. set initial value of _ac)
-        )
-      ..addListener(() {
+    )..addStatusListener((status) {
         if (widget.onPanelSlide != null) widget.onPanelSlide!(_ac.value);
 
-        if (widget.onPanelOpened != null && _ac.value == 1.0)
-          widget.onPanelOpened!();
+        if (widget.onPanelOpened != null &&
+            _ac.value == 1.0 &&
+            actualPanelState == PanelState.CLOSED &&
+            status == AnimationStatus.completed) {
 
-        if (widget.onPanelClosed != null && _ac.value == 0.0)
+          actualPanelState = PanelState.OPEN;
+          widget.onPanelOpened!();
+        }
+
+        if (widget.onPanelClosed != null &&
+            _ac.value == 0.0 &&
+            actualPanelState == PanelState.OPEN &&
+            status == AnimationStatus.dismissed) {
+
+          actualPanelState = PanelState.CLOSED;
           widget.onPanelClosed!();
+        }
       });
 
     // prevent the panel content from being scrolled only if the widget is
