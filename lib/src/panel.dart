@@ -236,6 +236,8 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
             actualPanelState == PanelState.CLOSED &&
             status == AnimationStatus.completed) {
 
+          setState(() {});
+
           actualPanelState = PanelState.OPEN;
           widget.onPanelOpened!();
         }
