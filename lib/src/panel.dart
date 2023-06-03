@@ -374,12 +374,9 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                               (widget.padding != null
                                   ? widget.padding!.horizontal
                                   : 0),
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: widget.minHeight),
-                            child: Container(
-                              height: widget.maxHeight,
-                              child: widget.panelBuilder!(),
-                            ),
+                          child: Container(
+                            height: widget.maxHeight,
+                            child: widget.panelBuilder!(),
                           )),
 
                       // footer
