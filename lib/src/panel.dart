@@ -156,6 +156,8 @@ class SlidingUpPanel extends StatefulWidget {
   /// by default the Panel is open and must be swiped closed by the user.
   final PanelState defaultPanelState;
 
+  final bool enableFling;
+
   /// To attach to a [Scrollable] on a panel that
   /// links the panel's position to the scroll position. Useful for implementing
   /// infinite scroll behavior
@@ -197,6 +199,7 @@ class SlidingUpPanel extends StatefulWidget {
       this.defaultPanelState = PanelState.CLOSED,
       this.header,
       this.footer,
+      this.enableFling = true,
       this.scrollController,
       this.panelBuilder})
       : assert(panelBuilder != null),
@@ -228,14 +231,14 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
         value: widget.defaultPanelState == PanelState.CLOSED
             ? 0.0
             : 1.0 //set the default panel state (i.e. set initial value of _ac)
-    )..addStatusListener((status) {
+        )
+      ..addStatusListener((status) {
         if (widget.onPanelSlide != null) widget.onPanelSlide!(_ac.value);
 
         if (widget.onPanelOpened != null &&
             _ac.value == 1.0 &&
             actualPanelState == PanelState.CLOSED &&
             status == AnimationStatus.completed) {
-
           setState(() {});
 
           actualPanelState = PanelState.OPEN;
@@ -246,7 +249,6 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
             _ac.value == 0.0 &&
             actualPanelState == PanelState.OPEN &&
             status == AnimationStatus.dismissed) {
-
           if (widget.collapsed != null) {
             setState(() {});
           }
@@ -287,10 +289,13 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                     child: child ?? SizedBox(),
                   );
                 },
-                child: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  child: widget.body,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: widget.minHeight),
+                  child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    child: widget.body,
+                  ),
                 ),
               )
             : Container(),
@@ -369,9 +374,12 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                               (widget.padding != null
                                   ? widget.padding!.horizontal
                                   : 0),
-                          child: Container(
-                            height: widget.maxHeight,
-                            child: widget.panelBuilder!(),
+                          child: Padding(
+                            padding: EdgeInsets.only(bottom: widget.minHeight),
+                            child: Container(
+                              height: widget.maxHeight,
+                              child: widget.panelBuilder!(),
+                            ),
                           )),
 
                       // footer
@@ -568,9 +576,9 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
         widget.disableDraggableOnScrolling) {
       return;
     }
+
     double minFlingVelocity = 365.0;
     double kSnap = 8;
-
     //let the current animation finish before starting a new one
     if (_ac.isAnimating) return;
 
@@ -592,7 +600,6 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
     double d2Snap = ((widget.snapPoint ?? 3) - _ac.value)
         .abs(); // large value if null results in not every being the min
     double minDistance = min(d2Close, min(d2Snap, d2Open));
-
     // check if velocity is sufficient for a fling
     if (v.pixelsPerSecond.dy.abs() >= minFlingVelocity) {
       // snapPoint exists
@@ -908,8 +915,10 @@ class _ForceDraggableWidgetRenderBox extends RenderPointerListener {
 /// To make [ForceDraggableWidget] work in [Scrollable] widgets
 class PanelScrollPhysics extends ScrollPhysics {
   final PanelController controller;
+
   const PanelScrollPhysics({required this.controller, ScrollPhysics? parent})
       : super(parent: parent);
+
   @override
   PanelScrollPhysics applyTo(ScrollPhysics? ancestor) {
     return PanelScrollPhysics(
