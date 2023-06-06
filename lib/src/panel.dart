@@ -292,7 +292,7 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                 child: Padding(
                   padding: EdgeInsets.only(bottom: widget.minHeight),
                   child: Container(
-                    height: MediaQuery.of(context).size.height,
+                    height: MediaQuery.of(context).size.height - widget.minHeight,
                     width: MediaQuery.of(context).size.width,
                     child: widget.body,
                   ),
