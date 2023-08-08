@@ -57,6 +57,9 @@ class SlidingUpPanel extends StatefulWidget {
   /// The height of the sliding panel when fully open.
   final double maxHeight;
 
+  /// Optional width of the sliding panel, default will be screen width.
+  final double? width;
+
   /// A point between [minHeight] and [maxHeight] that the panel snaps to
   /// while animating. A fast swipe on the panel will disregard this point
   /// and go directly to the open/close position. This value is represented as a
@@ -167,6 +170,7 @@ class SlidingUpPanel extends StatefulWidget {
       this.collapsed,
       this.minHeight = 100.0,
       this.maxHeight = 500.0,
+      this.width,
       this.snapPoint,
       this.border,
       this.borderRadius,
@@ -272,7 +276,7 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
+                  width: widget.width ?? MediaQuery.of(context).size.width,
                   child: widget.body,
                 ),
               )
@@ -298,7 +302,7 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                     builder: (context, _) {
                       return Container(
                         height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
+                        width: widget.width ?? MediaQuery.of(context).size.width,
 
                         //set color to null so that touch events pass through
                         //to the body when the panel is closed, otherwise,
@@ -345,7 +349,7 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                           bottom: widget.slideDirection == SlideDirection.DOWN
                               ? 0.0
                               : null,
-                          width: MediaQuery.of(context).size.width -
+                          width: widget.width ?? MediaQuery.of(context).size.width -
                               (widget.margin != null
                                   ? widget.margin!.horizontal
                                   : 0) -
@@ -392,7 +396,7 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                         bottom: widget.slideDirection == SlideDirection.DOWN
                             ? 0.0
                             : null,
-                        width: MediaQuery.of(context).size.width -
+                        width: widget.width ?? MediaQuery.of(context).size.width -
                             (widget.margin != null
                                 ? widget.margin!.horizontal
                                 : 0) -
