@@ -335,17 +335,65 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                       child: child,
                     );
                   },
-                  child: Stack(
-                    children: <Widget>[
-                      //open panel
-                      Positioned(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => Stack(
+                      children: <Widget>[
+                        //open panel
+                        Positioned(
+                            top: widget.slideDirection == SlideDirection.UP
+                                ? 0.0
+                                : null,
+                            bottom: widget.slideDirection == SlideDirection.DOWN
+                                ? 0.0
+                                : null,
+                            width: constraints.maxWidth -
+                                (widget.margin != null
+                                    ? widget.margin!.horizontal
+                                    : 0) -
+                                (widget.padding != null
+                                    ? widget.padding!.horizontal
+                                    : 0),
+                            child: Container(
+                              height: widget.maxHeight,
+                              child: widget.panelBuilder!(),
+                            )),
+
+                        // footer
+                        widget.footer != null
+                            ? Positioned(
+                                top: widget.slideDirection == SlideDirection.UP
+                                    ? null
+                                    : 0.0,
+                                bottom:
+                                    widget.slideDirection == SlideDirection.DOWN
+                                        ? null
+                                        : 0.0,
+                                child: widget.footer ?? SizedBox())
+                            : Container(),
+
+                        // header
+                        widget.header != null
+                            ? Positioned(
+                                top: widget.slideDirection == SlideDirection.UP
+                                    ? 0.0
+                                    : null,
+                                bottom:
+                                    widget.slideDirection == SlideDirection.DOWN
+                                        ? 0.0
+                                        : null,
+                                child: widget.header ?? SizedBox(),
+                              )
+                            : Container(),
+
+                        // collapsed panel
+                        Positioned(
                           top: widget.slideDirection == SlideDirection.UP
                               ? 0.0
                               : null,
                           bottom: widget.slideDirection == SlideDirection.DOWN
                               ? 0.0
                               : null,
-                          width: MediaQuery.of(context).size.width -
+                          width: constraints.maxWidth -
                               (widget.margin != null
                                   ? widget.margin!.horizontal
                                   : 0) -
@@ -353,69 +401,23 @@ class _SlidingUpPanelState extends State<SlidingUpPanel>
                                   ? widget.padding!.horizontal
                                   : 0),
                           child: Container(
-                            height: widget.maxHeight,
-                            child: widget.panelBuilder!(),
-                          )),
+                            height: widget.minHeight,
+                            child: widget.collapsed == null
+                                ? Container()
+                                : FadeTransition(
+                                    opacity: Tween(begin: 1.0, end: 0.0)
+                                        .animate(_ac),
 
-                      // footer
-                      widget.footer != null
-                          ? Positioned(
-                              top: widget.slideDirection == SlideDirection.UP
-                                  ? null
-                                  : 0.0,
-                              bottom:
-                                  widget.slideDirection == SlideDirection.DOWN
-                                      ? null
-                                      : 0.0,
-                              child: widget.footer ?? SizedBox())
-                          : Container(),
-
-                      // header
-                      widget.header != null
-                          ? Positioned(
-                              top: widget.slideDirection == SlideDirection.UP
-                                  ? 0.0
-                                  : null,
-                              bottom:
-                                  widget.slideDirection == SlideDirection.DOWN
-                                      ? 0.0
-                                      : null,
-                              child: widget.header ?? SizedBox(),
-                            )
-                          : Container(),
-
-                      // collapsed panel
-                      Positioned(
-                        top: widget.slideDirection == SlideDirection.UP
-                            ? 0.0
-                            : null,
-                        bottom: widget.slideDirection == SlideDirection.DOWN
-                            ? 0.0
-                            : null,
-                        width: MediaQuery.of(context).size.width -
-                            (widget.margin != null
-                                ? widget.margin!.horizontal
-                                : 0) -
-                            (widget.padding != null
-                                ? widget.padding!.horizontal
-                                : 0),
-                        child: Container(
-                          height: widget.minHeight,
-                          child: widget.collapsed == null
-                              ? Container()
-                              : FadeTransition(
-                                  opacity:
-                                      Tween(begin: 1.0, end: 0.0).animate(_ac),
-
-                                  // if the panel is open ignore pointers (touch events) on the collapsed
-                                  // child so that way touch events go through to whatever is underneath
-                                  child: IgnorePointer(
-                                      ignoring: _isPanelOpen,
-                                      child: widget.collapsed),
-                                ),
+                                    // if the panel is open ignore pointers (touch events) on the collapsed
+                                    // child so that way touch events go through to whatever is underneath
+                                    child: IgnorePointer(
+                                        ignoring: _isPanelOpen,
+                                        child: widget.collapsed),
+                                  ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
