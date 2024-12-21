@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel2/sliding_up_panel2.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(SlidingUpPanelExample());
 
@@ -64,127 +65,132 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     _panelHeightOpen = MediaQuery.of(context).size.height * .80;
 
-    return Material(
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: <Widget>[
-          SlidingUpPanel(
-            snapPoint: .5,
-            disableDraggableOnScrolling: false,
-            footer: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              height: 100,
-              child: IgnoreDraggableWidget(
-                child: BottomNavigationBar(
-                  backgroundColor: Colors.blue[50],
-                  items: [
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.home), label: 'Home'),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.man), label: 'Profile'),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.settings), label: 'Settings'),
-                  ],
+    return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.blue[50],
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.man), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+        ],
+      ),
+      body: Material(
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: <Widget>[
+            // the fab
+            Positioned(
+              right: 20.0,
+              bottom: _fabHeight,
+              child: FloatingActionButton(
+                child: Icon(
+                  Icons.gps_fixed,
+                  color: Theme.of(context).primaryColor,
+                ),
+                onPressed: () {},
+                backgroundColor: Colors.white,
+              ),
+            ),
+
+            Positioned(
+                top: 0,
+                child: ClipRRect(
+                    child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).padding.top,
+                          color: Colors.transparent,
+                        )))),
+
+            //the SlidingUpPanel Title
+            Positioned(
+              top: 52.0,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(24.0, 18.0, 24.0, 18.0),
+                child: Text(
+                  "SlidingUpPanel Example",
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24.0),
+                  boxShadow: [BoxShadow(color: Color.fromRGBO(0, 0, 0, .25), blurRadius: 16.0)],
                 ),
               ),
             ),
-            header: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ForceDraggableWidget(
-                    child: Container(
-                      width: 100,
-                      height: 40,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            height: 12.0,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                width: 30,
-                                height: 7,
-                                decoration: BoxDecoration(
-                                    color: Colors.blueAccent,
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(12.0))),
-                              ),
-                            ],
-                          ),
-                        ],
+            SlidingUpPanel(
+              snapPoint: .5,
+              disableDraggableOnScrolling: false,
+              header: SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: 30,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            maxHeight: _panelHeightOpen,
-            minHeight: _panelHeightClosed,
-            parallaxEnabled: true,
-            parallaxOffset: .5,
-            body: _body(),
-            controller: panelController,
-            scrollController: scrollController,
-            panelBuilder: () => _panel(),
-            borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(18.0),
-                topRight: Radius.circular(18.0)),
-            onPanelSlide: (double pos) => setState(() {
-              _fabHeight = pos * (_panelHeightOpen - _panelHeightClosed) +
-                  _initFabHeight;
-            }),
-          ),
-
-          // the fab
-          Positioned(
-            right: 20.0,
-            bottom: _fabHeight,
-            child: FloatingActionButton(
-              child: Icon(
-                Icons.gps_fixed,
-                color: Theme.of(context).primaryColor,
-              ),
-              onPressed: () {},
-              backgroundColor: Colors.white,
-            ),
-          ),
-
-          Positioned(
-              top: 0,
-              child: ClipRRect(
-                  child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    ForceDraggableWidget(
                       child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).padding.top,
-                        color: Colors.transparent,
-                      )))),
-
-          //the SlidingUpPanel Title
-          Positioned(
-            top: 52.0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(24.0, 18.0, 24.0, 18.0),
-              child: Text(
-                "SlidingUpPanel Example",
-                style: TextStyle(fontWeight: FontWeight.w500),
+                        width: 100,
+                        height: 40,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              height: 12.0,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  width: 30,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                      color: Colors.blueAccent, borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          panelController.hide();
+                        },
+                        child: SizedBox(
+                          width: 30,
+                          child: Icon(
+                            Icons.close,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24.0),
-                boxShadow: [
-                  BoxShadow(
-                      color: Color.fromRGBO(0, 0, 0, .25), blurRadius: 16.0)
-                ],
-              ),
+              maxHeight: _panelHeightOpen,
+              minHeight: _panelHeightClosed,
+              parallaxEnabled: true,
+              parallaxOffset: .5,
+              body: _body(),
+              controller: panelController,
+              scrollController: scrollController,
+              panelBuilder: () => _panel(),
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(18.0), topRight: Radius.circular(18.0)),
+              onPanelSlide: (double pos) => setState(() {
+                _fabHeight = pos * (_panelHeightOpen - _panelHeightClosed) + _initFabHeight;
+              }),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -221,16 +227,10 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                _button(
-                    "Popular",
-                    Icons.favorite,
-                    Colors.blue,
-                    () => {
-                          panelController.forseScrollChange(
-                              scrollController.animateTo(100,
-                                  duration: Duration(milliseconds: 400),
-                                  curve: Curves.ease))
-                        }),
+                _button("Popular", Icons.favorite, Colors.blue, () {
+                  panelController.forseScrollChange(
+                      scrollController.animateTo(100, duration: Duration(milliseconds: 400), curve: Curves.ease));
+                }),
                 _button("Food", Icons.restaurant, Colors.red, () => {}),
                 _button("Events", Icons.event, Colors.amber, () => {}),
                 _button("More", Icons.more_horiz, Colors.green, () => {}),
@@ -326,8 +326,7 @@ class _HomePageState extends State<HomePage> {
         ));
   }
 
-  Widget _button(
-      String label, IconData icon, Color color, void Function()? onTap) {
+  Widget _button(String label, IconData icon, Color color, void Function()? onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -338,8 +337,7 @@ class _HomePageState extends State<HomePage> {
               icon,
               color: Colors.white,
             ),
-            decoration:
-                BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [
               BoxShadow(
                 color: Color.fromRGBO(0, 0, 0, 0.15),
                 blurRadius: 8.0,
@@ -358,23 +356,38 @@ class _HomePageState extends State<HomePage> {
   Widget _body() {
     return FlutterMap(
       options: MapOptions(
-        center: LatLng(40.441589, -80.010948),
-        zoom: 13,
+        initialCenter: LatLng(40.441589, -80.010948),
+        initialZoom: 13,
         maxZoom: 15,
       ),
-      layers: [
-        TileLayerOptions(
-            urlTemplate: "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png"),
-        MarkerLayerOptions(markers: [
+      children: [
+        TileLayer(urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
+        MarkerLayer(markers: [
           Marker(
               point: LatLng(40.441753, -80.011476),
-              builder: (ctx) => Icon(
-                    Icons.location_on,
-                    color: Colors.blue,
-                    size: 48.0,
-                  ),
-              height: 60),
+              height: 60,
+              child: GestureDetector(
+                onTap: () {
+                  panelController.show();
+                },
+                child: Icon(
+                  Icons.location_on,
+                  color: Colors.blue,
+                  size: 48.0,
+                ),
+              )),
         ]),
+        RichAttributionWidget(
+          alignment: AttributionAlignment.bottomRight,
+          // Include a stylish prebuilt attribution widget that meets all requirments
+          attributions: [
+            TextSourceAttribution(
+              'OpenStreetMap contributors',
+              onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')), // (external)
+            ),
+            // Also add images...
+          ],
+        ),
       ],
     );
   }
